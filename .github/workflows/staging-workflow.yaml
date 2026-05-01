@@ -3,6 +3,11 @@ run-name: "[STAGING] [BRANCH : ${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
+    inputs:
+      deployment_confirmation_text:
+        description: 'Type "DEPLOY" to confirm'
+        type: string
+        required: true
 
 # examples :
 # STAGING_AWS_ACCESS_KEY_ID = ...
