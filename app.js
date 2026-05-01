@@ -9,18 +9,18 @@ app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
     console.log("App is running...");
-    res.json({ status: "Done with the pipeline setup" });
+    res.json({ status: "Hello from Docker Container" });
 });
 
 app.get("/health", (req, res) => {
-    console.log("Health check hit");
+    console.log("Health from Docker");
     res.json({ status: "ok " });
 });
 
 app.get("/hello", (req, res) => {
-    console.log("Hello Doston");
+    console.log("Hello, I am inside Docker Container from ECS");
     console.log(`IP : ${req.headers["x-forwarded-for"] || req.socket.remoteAddress}`);
-    res.json({ message: "Hello from server side" });
+    res.json({ message: "Hello friends, how are you ?" });
 });
 
 app.listen(PORT, () => {

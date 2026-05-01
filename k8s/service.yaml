@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: auth-pod # must match pod label (in deployment.yaml > spec.template.metadata.labels.app)
+  ports:
+    - protocol: TCP
+      port: 3000  # Publicly accessible port (this is where ingress will forward the traffic)
+      targetPort: 3000  # Container port inside the pod
+  sessionAffinity: None  # Options: "ClientIP" or "None" (sessionAffinity: ClientIP keeps requests from the same client on the same pod - sticky sessions).

@@ -1,0 +1,68 @@
+name: Deploy STAGING
+run-name: "[STAGING] [BRANCH : ${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+
+# examples :
+# STAGING_AWS_ACCESS_KEY_ID = ...
+# STAGING_AWS_SECRET_ACCESS_KEY = ...
+# STAGING_AWS_REGION = ap-south-1
+# STAGING_ECR_REPOSITORY = anujjain-first-ecr-repo
+# STAGING_EKS_CLUSTER_NAME = your-cluster-name
+# STAGING_DO_NOT_DELETE_DEPLOYMENT_NAME = auth-deployment
+# STAGING_AWS_EKS_NAMESPACE = default
+# STAGING_DO_NOT_DELETE_ENV = ...
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # =========== Checkout ==========
+      - name: Checkout code to runner environment
+        uses: actions/checkout@v3
+
+      # ========= CREATE .ENV =========
+      - name: Create dotenv and Set up environment variables in project root
+        run: |
+          echo "${{ secrets.STAGING_DO_NOT_DELETE_ENV }}" > .env
+
+      # ========= AWS SETUP =========
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.STAGING_AWS_REGION }
+
+      # ========= LOGIN TO ECR =========
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ========= BUILD + PUSH =========
+      - name: Build & Push
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI=$ACCOUNT_ID.dkr.ecr.${{ secrets.STAGING_AWS_REGION }}.amazonaws.com/${{ secrets.STAGING_ECR_REPOSITORY }}
+
+          docker build -t $ECR_URI:latest .
+          docker push $ECR_URI:latest
+
+      # ========= CONNECT EKS =========
+      - name: Connect to EKS
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ secrets.STAGING_AWS_REGION }} \
+            --name ${{ secrets.STAGING_EKS_CLUSTER_NAME }}
+
+      # ========= DEPLOY =========
+      - name: Apply manifests
+        run: |
+          kubectl apply -f k8s
+
+      # ========= RESTART =========
+      - name: Restart deployment
+        run: |
+          kubectl rollout restart deployment ${{ secrets.STAGING_DO_NOT_DELETE_DEPLOYMENT_NAME }} -n ${{ secrets.STAGING_AWS_EKS_NAMESPACE }}
