@@ -5,29 +5,39 @@ metadata:
   namespace: default
 spec:
   replicas: 1
+
+  # 🔥 Prevent extra pods during rollout (CRITICAL for t3.micro)
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+
   selector:
     matchLabels:
       app: auth-pod
+
   template:
     metadata:
       labels:
         app: auth-pod
+
     spec:
       containers:
         - name: auth-container
           image: 494934332037.dkr.ecr.ap-south-1.amazonaws.com/anujjain-first-ecr-repo:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent   # better for faster startup
 
           ports:
             - containerPort: 3000
-            
+
           resources:
             requests:
-              memory: "160Mi" # (This is already 2x of required usage - if you try to reduce then scaledown won't work (think it) - staging)
+              memory: "64Mi"
               cpu: "10m"
             limits:
-              memory: "320Mi" # 2x (because heavy at startup, low afterwards - staging)
-              cpu: "100m" # 10x (because heavy at startup, low afterwards - staging)
+              memory: "128Mi"
+              cpu: "100m"
 
           livenessProbe:
             httpGet:
