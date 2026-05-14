@@ -22,13 +22,3 @@ spec:
                 name: auth-service
                 port:
                   number: 3000
-    - host: anuj-jain.online
-      http:
-        paths:
-          - path: /api/notif
-            pathType: Prefix
-            backend:
-              service:
-                name: notifications-service
-                port:
-                  number: 3000

@@ -5,14 +5,6 @@ metadata:
   namespace: default
 spec:
   replicas: 1
-
-  # 🔥 Prevent extra pods during rollout (CRITICAL for t3.micro)
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 0
-      maxUnavailable: 1
-
   selector:
     matchLabels:
       app: auth-pod
@@ -25,7 +17,7 @@ spec:
     spec:
       containers:
         - name: auth-container
-          image: 494934332037.dkr.ecr.ap-south-1.amazonaws.com/anujjain-first-ecr-repo:latest
+          image: 337166815908.dkr.ecr.ap-south-1.amazonaws.com/k8s-with-docker:latest
           imagePullPolicy: IfNotPresent   # better for faster startup
 
           ports:

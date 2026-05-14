@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 
 app.get("/health", (req, res) => {
     console.log("Health from Docker");
-    res.json({ status: "ok " });
+    res.json({ status: "ok from k8s pods " });
 });
 
 app.get("/hello", (req, res) => {
