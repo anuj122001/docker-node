@@ -4,7 +4,7 @@ metadata:
   name: auth-service
   namespace: default
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: auth-pod # must match pod label (in deployment.yaml > spec.template.metadata.labels.app)
   ports:
